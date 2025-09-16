@@ -51,7 +51,12 @@ fragments/
 
 3. **Configure environment variables**
    
-   Create a `.env` file in the root directory:
+   Copy the example environment file and configure it:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Then edit `.env` with your actual values:
    ```bash
    # Port for the server
    PORT=8080
@@ -64,7 +69,7 @@ fragments/
    AWS_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
    ```
 
-   Replace the Cognito values with your actual User Pool ID and Client ID.
+   **Important**: Replace the Cognito values with your actual User Pool ID and Client ID from AWS Console.
 
 ## Running the Application
 
