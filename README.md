@@ -9,6 +9,9 @@ A secure Node.js microservice for managing user fragments with JWT authenticatio
 - **Structured Routes**: Organized API routes with versioning (`/v1/*`)
 - **Error Handling**: Comprehensive error handling and logging
 - **Security Middleware**: Helmet, CORS, and compression middleware
+- **Unit Testing**: Comprehensive test suite with Jest and Supertest
+- **Continuous Integration**: Automated testing and linting with GitHub Actions
+- **Test Coverage**: Code coverage reporting for quality assurance
 
 ## Project Structure
 
@@ -18,15 +21,30 @@ fragments/
 │   ├── index.js          # Main entry point with env loading & error handling
 │   ├── server.js         # Server startup and configuration
 │   ├── app.js            # Express app setup and middleware
-│   ├── auth.js           # JWT authentication strategy
+│   ├── response.js       # Response helper functions
 │   ├── logger.js         # Logging configuration
+│   ├── auth/             # Authentication strategies
+│   │   ├── index.js      # Auth strategy selector
+│   │   ├── cognito.js    # AWS Cognito JWT strategy
+│   │   └── basic-auth.js # HTTP Basic Auth for testing
 │   └── routes/
 │       ├── index.js      # Main routes with authentication
 │       └── api/
 │           ├── index.js  # API v1 routes
 │           └── get.js    # GET /v1/fragments endpoint
+├── tests/
+│   ├── .htpasswd         # Test user credentials
+│   └── unit/             # Unit test files
+│       ├── app.test.js   # App middleware tests
+│       ├── health.test.js # Health check tests
+│       ├── get.test.js   # API endpoint tests
+│       └── response.test.js # Response helper tests
+├── .github/workflows/
+│   └── ci.yml            # GitHub Actions CI workflow
 ├── .env                  # Environment configuration
 ├── debug.env            # Debug environment variables
+├── env.jest             # Test environment variables
+├── jest.config.js       # Jest test configuration
 └── package.json
 ```
 
@@ -87,6 +105,83 @@ npm start
 ```bash
 npm run debug
 ```
+
+## Testing
+
+This project includes a comprehensive test suite using Jest and Supertest.
+
+### Running Tests
+
+**Run all tests:**
+```bash
+npm test
+```
+
+**Run tests in watch mode:**
+```bash
+npm run test:watch
+```
+
+**Generate coverage report:**
+```bash
+npm run coverage
+```
+
+**Run specific test file:**
+```bash
+npm test health.test.js
+```
+
+### Test Structure
+
+- **Unit Tests**: Located in `tests/unit/`
+- **Authentication**: Uses HTTP Basic Auth for testing (no AWS Cognito required)
+- **Coverage**: Detailed coverage reports in `coverage/lcov-report/`
+
+### Test Files
+
+- `app.test.js` - Express app middleware and error handling
+- `health.test.js` - Health check endpoint tests
+- `get.test.js` - API endpoint authentication and response tests
+- `response.test.js` - Response helper function tests
+
+## Continuous Integration
+
+This project uses GitHub Actions for automated testing and linting.
+
+### CI Workflow
+
+The `.github/workflows/ci.yml` workflow runs on:
+- Push to `main` branch
+- Pull requests to `main` branch
+
+### CI Jobs
+
+1. **ESLint**: Code linting and style checking
+2. **Unit Tests**: Automated test execution
+
+### Viewing CI Results
+
+1. Go to your GitHub repository
+2. Click on the "Actions" tab
+3. View workflow runs and their results
+
+## Environment Configuration
+
+### Development Environment
+- Uses `debug.env` for development
+- Debug logging enabled
+- Hot reload with nodemon
+
+### Test Environment
+- Uses `env.jest` for testing
+- Silent logging
+- HTTP Basic Auth for authentication
+
+### Production Environment
+- Uses `.env` for production
+- AWS Cognito authentication
+- Structured logging
 
 ## API Endpoints
 
@@ -203,6 +298,7 @@ This project was restructured to use a new entry point and authentication system
 
 ### Key Dependencies
 
+**Production Dependencies:**
 - **express**: Web framework
 - **passport**: Authentication middleware
 - **passport-http-bearer**: Bearer token strategy
@@ -211,6 +307,14 @@ This project was restructured to use a new entry point and authentication system
 - **cors**: Cross-origin resource sharing
 - **compression**: Response compression
 - **pino**: Structured logging
+- **http-auth**: HTTP Basic Authentication
+- **http-auth-passport**: Passport integration for Basic Auth
+
+**Development Dependencies:**
+- **jest**: Testing framework
+- **supertest**: HTTP assertion library
+- **eslint**: Code linting
+- **prettier**: Code formatting
 
 ## Troubleshooting
 
