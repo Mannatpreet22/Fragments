@@ -7,6 +7,12 @@ const Fragment = require('../../src/model/fragment');
 // Mock the Fragment class
 jest.mock('../../src/model/fragment');
 
+// Mock the hashEmail function to return the input unchanged for testing
+jest.mock('../../src/hash', () => ({
+  ...jest.requireActual('../../src/hash'),
+  hashEmail: jest.fn((email) => email), // Return email unchanged for tests
+}));
+
 describe('POST /v1/fragments', () => {
   beforeEach(() => {
     jest.clearAllMocks();

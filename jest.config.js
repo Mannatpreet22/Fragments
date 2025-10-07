@@ -14,6 +14,7 @@ console.log(`Using LOG_LEVEL=${process.env.LOG_LEVEL}. Use 'debug' in env.jest f
 module.exports = {
   verbose: true,
   testTimeout: 5000,
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };
 
 
