@@ -1,6 +1,5 @@
 // src/routes/api/post.js
 
-const express = require('express');
 const contentType = require('content-type');
 const Fragment = require('../../model/fragment');
 const { createSuccessResponse, createErrorResponse } = require('../../response');

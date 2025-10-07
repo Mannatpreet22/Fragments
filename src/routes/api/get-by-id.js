@@ -1,7 +1,7 @@
 // src/routes/api/get-by-id.js
 
 const Fragment = require('../../model/fragment');
-const { createSuccessResponse, createErrorResponse } = require('../../response');
+const { createErrorResponse } = require('../../response');
 const logger = require('../../logger');
 
 /**
