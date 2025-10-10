@@ -1,0 +1,33 @@
+# .dockerignore file for fragments microservice
+# This file tells Docker which files and directories to exclude from the build context
+# Excluding unnecessary files reduces build time and image size
+
+# Version control and IDE files
+.github/
+.vscode/
+.git/
+.gitignore
+
+# Dependencies (will be installed via npm install in Dockerfile)
+node_modules/
+
+# Test files and coverage reports
+tests/
+!tests/.htpasswd
+coverage/
+
+# Environment files (will be passed at runtime)
+.env
+debug.env
+env.jest
+
+# Configuration files not needed in container
+eslint.config.mjs
+.prettier*
+jest*
+
+# Build artifacts
+fragments-*.tgz
+
+# Documentation
+README.md
