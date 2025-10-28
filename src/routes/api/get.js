@@ -27,7 +27,14 @@ module.exports = async (req, res) => {
 
     // Return success response with fragments array
     res.status(200).json(createSuccessResponse({
-      fragments: fragments.map(fragment => fragment.toJSON()),
+      fragments: fragments.map(fragment => ({
+        id: fragment.id,
+        ownerId: fragment.ownerId,
+        type: fragment.type,
+        size: fragment.size,
+        created: fragment.created,
+        updated: fragment.updated,
+      })),
     }));
 
   } catch (err) {

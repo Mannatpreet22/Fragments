@@ -33,7 +33,8 @@ const rawBody = () =>
 // Define our API routes
 router.get('/fragments', require('./get'));
 router.post('/fragments', rawBody(), require('./post'));
+router.get('/fragments/:id/info', require('./get-info'));
 router.get('/fragments/:id', require('./get-by-id'));
-// Other routes (DELETE, etc.) will go here later on...
+router.delete('/fragments/:id', require('./delete'));
 
 module.exports = router;

@@ -12,6 +12,8 @@ A secure Node.js microservice for managing user fragments with JWT authenticatio
 - **Unit Testing**: Comprehensive test suite with Jest and Supertest
 - **Continuous Integration**: Automated testing and linting with GitHub Actions
 - **Test Coverage**: Code coverage reporting for quality assurance
+- **Multi-Stage Docker Build**: Optimized Docker image using Alpine Linux (169MB)
+- **Docker Hub**: Pre-built images available at [mannatpreet/fragments](https://hub.docker.com/r/mannatpreet/fragments)
 
 ## Project Structure
 
@@ -105,6 +107,33 @@ npm start
 ```bash
 npm run debug
 ```
+
+### Using Docker
+
+**Pull from Docker Hub:**
+```bash
+docker pull mannatpreet/fragments:latest
+```
+
+**Run with Docker:**
+```bash
+docker run -d -p 8080:8080 \
+  -e HTPASSWD_FILE=./tests/.htpasswd \
+  -e NODE_ENV=development \
+  --name fragments \
+  mannatpreet/fragments:latest
+```
+
+**Build locally:**
+```bash
+docker buildx build --platform linux/amd64 -t fragments .
+```
+
+**Docker Tags:**
+- `latest` - Most recent stable version
+- `lab-6` - Lab 6 submission version
+- `lab-6-step-20` - Dockerfile optimizations only
+- `lab-6-step-21` - Full implementation with new endpoint
 
 ## Testing
 
@@ -225,6 +254,30 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" localhost:8080/v1/fragments
 }
 ```
 
+#### Get Fragment Metadata by ID
+- **GET** `/v1/fragments/:id/info`
+- **Authentication**: Bearer token required
+- **Returns**: Fragment metadata without the data content
+
+```bash
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" localhost:8080/v1/fragments/{fragment-id}/info
+```
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "fragment": {
+    "id": "97081cea-f2e3-45d7-9fb3-eb77d47e675e",
+    "ownerId": "user1@email.com",
+    "type": "鲜/plain",
+    "size": 11,
+    "created": "2025-10-28T00:51:26.839Z",
+    "updated": "2025-10-28T00:51:26.839Z"
+  }
+}
+```
+
 ## Authentication
 
 This API uses AWS Cognito for JWT token verification. All `/v1/*` endpoints require a valid JWT token in the Authorization header.
@@ -330,6 +383,46 @@ This project was restructured to use a new entry point and authentication system
 Run in debug mode to see detailed logs:
 ```bash
 npm run debug
+```
+
+## Docker Multi-Stage Build (Lab 6)
+
+This project uses a multi-stage Docker build for optimal image size and security.
+
+### Optimizations
+
+**Image Size Reduction:**
+- Before: 1.18GB (single-stage build)
+- After: 169MB (multi-stage Alpine build)
+- **86% size reduction**
+
+**Build Stages:**
+1. **Builder Stage** - Full Node.js image for installing all dependencies
+2. **Production Stage** - Alpine-based image with only production dependencies
+
+**Security Improvements:**
+- Non-root user execution (user: nodejs)
+- Minimal attack surface with Alpine Linux
+- Separated build and runtime environments
+
+**Docker Hub Repository:**
+https://hub.docker.com/r/mannatpreet/fragments
+
+### Deployment on EC2
+
+```bash
+# Pull the image
+docker pull mannatpreet/fragments:latest
+
+# Run the container
+docker run -d -p 8080:8080 \
+  -e HTPASSWD_FILE=./tests/.htpasswd \
+  -e NODE_ENV=development \
+  --name fragments \
+  mannatpreet/fragments:latest
+
+# Test the API
+curl http://localhost:8080/
 ```
 
 ## Contributing
