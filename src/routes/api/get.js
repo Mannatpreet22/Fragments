@@ -6,13 +6,16 @@ const logger = require('../../logger');
 
 /**
  * Get a list of fragments for the current user
- * GET /v1/fragments
+ * GET /v1/fragments?expand=1
  */
 module.exports = async (req, res) => {
   try {
     const ownerId = req.user;
 
-    logger.debug({ ownerId }, 'Getting fragments for user');
+    // Check if expand query parameter is present
+    const expand = req.query.expand === '1' || req.query.expand === 'true';
+
+    logger.debug({ ownerId, expand }, 'Getting fragments for user');
 
     // Check if user is authenticated
     if (!ownerId) {
@@ -20,21 +23,30 @@ module.exports = async (req, res) => {
       return res.status(401).json(createErrorResponse(401, 'Authentication required'));
     }
 
-    // Get all fragments for the user
-    const fragments = await Fragment.byUser(ownerId);
+    // Get all fragments for the user, with optional expansion
+    const fragments = await Fragment.byUser(ownerId, expand);
 
-    logger.info({ ownerId, count: fragments.length }, 'Fragments retrieved successfully');
+    logger.info({ ownerId, count: fragments.length, expand }, 'Fragments retrieved successfully');
 
     // Return success response with fragments array
     res.status(200).json(createSuccessResponse({
-      fragments: fragments.map(fragment => ({
-        id: fragment.id,
-        ownerId: fragment.ownerId,
-        type: fragment.type,
-        size: fragment.size,
-        created: fragment.created,
-        updated: fragment.updated,
-      })),
+      fragments: fragments.map(fragment => {
+        const fragmentData = {
+          id: fragment.id,
+          ownerId: fragment.ownerId,
+          type: fragment.type,
+          size: fragment.size,
+          created: fragment.created,
+          updated: fragment.updated,
+        };
+
+        // If expand is true, include the data as base64
+        if (expand && fragment.data) {
+          fragmentData.data = fragment.data.toString('base64');
+        }
+
+        return fragmentData;
+      }),
     }));
 
   } catch (err) {

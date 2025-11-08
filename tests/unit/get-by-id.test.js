@@ -187,4 +187,91 @@ describe('GET /v1/fragments/:id', () => {
     expect(res.headers['content-length']).toBe('5');
     expect(res.body).toEqual(testData);
   });
+
+  test('converts Markdown to HTML when requesting .html extension', async () => {
+    const markdownData = Buffer.from('# Hello World\n\nThis is **bold** text.');
+    const mockFragment = {
+      id: 'test-id',
+      ownerId: 'user1@email.com',
+      type: 'text/markdown',
+      size: markdownData.length,
+      getData: jest.fn().mockResolvedValue(markdownData),
+    };
+
+    Fragment.byId.mockResolvedValue(mockFragment);
+
+    const res = await request(app)
+      .get('/v1/fragments/test-id.html')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toBe('text/html');
+    expect(Fragment.byId).toHaveBeenCalledWith('user1@email.com', 'test-id');
+    expect(res.text).toContain('<h1>Hello World</h1>');
+    expect(res.text).toContain('<strong>bold</strong>');
+  });
+
+  test('returns 415 for unsupported type conversion', async () => {
+    const testData = Buffer.from('plain text');
+    const mockFragment = {
+      id: 'test-id',
+      ownerId: 'user1@email.com',
+      type: 'text/plain',
+      size: 10,
+      getData: jest.fn().mockResolvedValue(testData),
+    };
+
+    Fragment.byId.mockResolvedValue(mockFragment);
+
+    const res = await request(app)
+      .get('/v1/fragments/test-id.html')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(415);
+    expect(res.body.status).toBe('error');
+    expect(res.body.error.message).toContain('Conversion from text/plain to .html is not supported');
+  });
+
+  test('returns 415 for unsupported extension', async () => {
+    const testData = Buffer.from('markdown text');
+    const mockFragment = {
+      id: 'test-id',
+      ownerId: 'user1@email.com',
+      type: 'text/markdown',
+      size: 13,
+      getData: jest.fn().mockResolvedValue(testData),
+    };
+
+    Fragment.byId.mockResolvedValue(mockFragment);
+
+    const res = await request(app)
+      .get('/v1/fragments/test-id.txt')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(415);
+    expect(res.body.status).toBe('error');
+    expect(res.body.error.message).toContain('Conversion from text/markdown to .txt is not supported');
+  });
+
+  test('handles fragment ID with extension correctly', async () => {
+    const testData = Buffer.from('Hello, World!');
+    const mockFragment = {
+      id: 'test-id',
+      ownerId: 'user1@email.com',
+      type: 'text/plain',
+      size: 13,
+      getData: jest.fn().mockResolvedValue(testData),
+    };
+
+    Fragment.byId.mockResolvedValue(mockFragment);
+
+    // Request without extension should work normally
+    const res = await request(app)
+      .get('/v1/fragments/test-id')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toBe('text/plain');
+    expect(Fragment.byId).toHaveBeenCalledWith('user1@email.com', 'test-id');
+  });
 });

@@ -78,7 +78,7 @@ describe('GET /v1/fragments', () => {
     expect(res.body.fragments).toHaveLength(2);
     expect(res.body.fragments[0].id).toBe('frag1');
     expect(res.body.fragments[1].id).toBe('frag2');
-    expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com');
+    expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);
   });
 
   test('returns empty array when user has no fragments', async () => {
@@ -104,6 +104,105 @@ describe('GET /v1/fragments', () => {
     expect(res.statusCode).toBe(500);
     expect(res.body.status).toBe('error');
     expect(res.body.error.message).toBe('Internal server error');
+  });
+
+  test('returns fragments without data when expand is not set', async () => {
+    const mockFragments = [
+      {
+        id: 'frag1',
+        ownerId: 'user1@email.com',
+        type: 'text/plain',
+        size: 10,
+        created: '2023-01-01T00:00:00.000Z',
+        updated: '2023-01-01T00:00:00.000Z',
+      },
+    ];
+
+    Fragment.byUser.mockResolvedValue(mockFragments);
+
+    const res = await request(app)
+      .get('/v1/fragments')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body.fragments[0].data).toBeUndefined();
+    expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);
+  });
+
+  test('returns expanded fragments with data when expand=1', async () => {
+    const testData = Buffer.from('test data');
+    const mockFragments = [
+      {
+        id: 'frag1',
+        ownerId: 'user1@email.com',
+        type: 'text/plain',
+        size: 9,
+        created: '2023-01-01T00:00:00.000Z',
+        updated: '2023-01-01T00:00:00.000Z',
+        data: testData,
+      },
+    ];
+
+    Fragment.byUser.mockResolvedValue(mockFragments);
+
+    const res = await request(app)
+      .get('/v1/fragments?expand=1')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body.fragments[0].data).toBeDefined();
+    expect(res.body.fragments[0].data).toBe(testData.toString('base64'));
+    expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', true);
+  });
+
+  test('returns expanded fragments with data when expand=true', async () => {
+    const testData = Buffer.from('test data');
+    const mockFragments = [
+      {
+        id: 'frag1',
+        ownerId: 'user1@email.com',
+        type: 'text/plain',
+        size: 9,
+        created: '2023-01-01T00:00:00.000Z',
+        updated: '2023-01-01T00:00:00.000Z',
+        data: testData,
+      },
+    ];
+
+    Fragment.byUser.mockResolvedValue(mockFragments);
+
+    const res = await request(app)
+      .get('/v1/fragments?expand=true')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body.fragments[0].data).toBeDefined();
+    expect(res.body.fragments[0].data).toBe(testData.toString('base64'));
+    expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', true);
+  });
+
+  test('returns fragments without data when expand is false', async () => {
+    const mockFragments = [
+      {
+        id: 'frag1',
+        ownerId: 'user1@email.com',
+        type: 'text/plain',
+        size: 10,
+        created: '2023-01-01T00:00:00.000Z',
+        updated: '2023-01-01T00:00:00.000Z',
+        data: Buffer.from('test'),
+      },
+    ];
+
+    Fragment.byUser.mockResolvedValue(mockFragments);
+
+    const res = await request(app)
+      .get('/v1/fragments?expand=false')
+      .auth('user1@email.com', 'password1');
+    
+    expect(res.statusCode).toBe(200);
+    expect(res.body.fragments[0].data).toBeUndefined();
+    expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);
   });
 });
 
