@@ -129,7 +129,7 @@ describe('GET /v1/fragments', () => {
     expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);
   });
 
-  test('returns expanded fragments with data when expand=1', async () => {
+  test('returns expanded fragments metadata (without raw data) when expand=1', async () => {
     const testData = Buffer.from('test data');
     const mockFragments = [
       {
@@ -150,12 +150,16 @@ describe('GET /v1/fragments', () => {
       .auth('user1@email.com', 'password1');
     
     expect(res.statusCode).toBe(200);
-    expect(res.body.fragments[0].data).toBeDefined();
-    expect(res.body.fragments[0].data).toBe(testData.toString('base64'));
+    // Expanded fragments return full metadata but not raw data (per spec)
+    expect(res.body.fragments[0].data).toBeUndefined();
+    expect(res.body.fragments[0].id).toBe('frag1');
+    expect(res.body.fragments[0].ownerId).toBe('user1@email.com');
+    expect(res.body.fragments[0].type).toBe('text/plain');
+    expect(res.body.fragments[0].size).toBe(9);
     expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', true);
   });
 
-  test('returns expanded fragments with data when expand=true', async () => {
+  test('returns expanded fragments metadata (without raw data) when expand=true', async () => {
     const testData = Buffer.from('test data');
     const mockFragments = [
       {
@@ -176,8 +180,12 @@ describe('GET /v1/fragments', () => {
       .auth('user1@email.com', 'password1');
     
     expect(res.statusCode).toBe(200);
-    expect(res.body.fragments[0].data).toBeDefined();
-    expect(res.body.fragments[0].data).toBe(testData.toString('base64'));
+    // Expanded fragments return full metadata but not raw data (per spec)
+    expect(res.body.fragments[0].data).toBeUndefined();
+    expect(res.body.fragments[0].id).toBe('frag1');
+    expect(res.body.fragments[0].ownerId).toBe('user1@email.com');
+    expect(res.body.fragments[0].type).toBe('text/plain');
+    expect(res.body.fragments[0].size).toBe(9);
     expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', true);
   });
 
