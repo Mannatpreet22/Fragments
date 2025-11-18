@@ -30,7 +30,9 @@ app.use(cors());
 app.use(compression());
 
 // Set up our passport authentication middleware
-passport.use(authenticate.strategy());
+// Register the strategy with passport - the strategy name should match what we use in authorize()
+const strategy = authenticate.strategy();
+passport.use(strategy);
 app.use(passport.initialize());
 
 // Define our routes

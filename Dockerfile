@@ -62,8 +62,9 @@ RUN npm ci --only=production && \
 # Only copy production code, not tests
 COPY --from=builder /app/src ./src
 
-# Create tests directory and copy HTPASSWD file for basic authentication (needed for testing in production)
-COPY --from=builder /app/tests/.htpasswd ./tests/.htpasswd
+# Note: HTPASSWD file is not copied to production image for security and cleanliness.
+# For production, use AWS Cognito authentication instead.
+# If Basic Auth is needed in production, mount the file as a volume or use a secret manager.
 
 # Create a non-root user for better security
 RUN addgroup -g 1001 -S nodejs && \

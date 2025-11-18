@@ -31,7 +31,9 @@ module.exports = async (req, res) => {
     // Return success response with fragments array
     res.status(200).json(createSuccessResponse({
       fragments: fragments.map(fragment => {
-        const fragmentData = {
+        // When expand is true, return full metadata (but not raw data)
+        // The spec requires expanded metadata objects, not embedding raw data
+        return {
           id: fragment.id,
           ownerId: fragment.ownerId,
           type: fragment.type,
@@ -39,13 +41,6 @@ module.exports = async (req, res) => {
           created: fragment.created,
           updated: fragment.updated,
         };
-
-        // If expand is true, include the data as base64
-        if (expand && fragment.data) {
-          fragmentData.data = fragment.data.toString('base64');
-        }
-
-        return fragmentData;
       }),
     }));
 

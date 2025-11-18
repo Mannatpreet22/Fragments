@@ -12,17 +12,34 @@ const logger = require('../logger');
 function authorize(strategy) {
   return (req, res, next) => {
     // Use the appropriate Passport strategy
-    const authenticate = passport.authenticate(strategy, { session: false });
-    
-    // Call the Passport authentication
-    authenticate(req, res, (err, user, info) => {
+    // Call passport.authenticate without a callback first to let it set req.user
+    passport.authenticate(strategy, { session: false })(req, res, (err, user, info) => {
+      logger.debug({ 
+        err, 
+        user, 
+        info, 
+        strategy, 
+        hasUser: !!user, 
+        reqUser: req.user,
+        headersSent: res.headersSent 
+      }, 'Passport authenticate callback');
+      
+      // If response was already sent (e.g., by http-auth), don't proceed
+      if (res.headersSent) {
+        logger.debug({ strategy }, 'Response already sent by auth strategy');
+        return;
+      }
+      
       if (err) {
         logger.error({ err, strategy }, 'Authentication error');
         return next(err);
       }
       
-      if (!user) {
-        logger.warn({ strategy, info }, 'Authentication failed');
+      // Use user from callback, or fall back to req.user (set by passport)
+      const authenticatedUser = user || req.user;
+      
+      if (!authenticatedUser) {
+        logger.warn({ strategy, info, headers: req.headers }, 'Authentication failed - no user');
         return res.status(401).json({
           status: 'error',
           error: {
@@ -35,9 +52,9 @@ function authorize(strategy) {
       // Hash the user's email for privacy
       try {
         // In test environment, skip hashing for easier testing
-        const hashedEmail = process.env.NODE_ENV === 'test' ? user : hashEmail(user);
+        const hashedEmail = process.env.NODE_ENV === 'test' ? authenticatedUser : hashEmail(authenticatedUser);
         logger.debug({ 
-          originalEmail: user, 
+          originalUser: authenticatedUser,
           hashedEmail, 
           strategy 
         }, 'User email hashed for privacy');
@@ -48,7 +65,7 @@ function authorize(strategy) {
       } catch (hashError) {
         logger.error({ 
           err: hashError, 
-          user, 
+          user: authenticatedUser, 
           strategy 
         }, 'Error hashing user email');
         

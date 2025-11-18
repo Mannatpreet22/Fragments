@@ -25,14 +25,15 @@ module.exports = async (req, res) => {
 
     // Parse Content-Type header
     let parsedContentType;
+    let type;
+    
     try {
       parsedContentType = contentType.parse(req);
+      type = parsedContentType.type;
     } catch (err) {
-      logger.warn({ err, contentType: req.headers['content-type'] }, 'Invalid Content-Type header');
-      return res.status(400).json(createErrorResponse(400, 'Invalid Content-Type header'));
+      logger.warn({ err, contentType: req.headers['content-type'] }, 'Invalid or missing Content-Type header');
+      return res.status(415).json(createErrorResponse(415, 'Unsupported Media Type: Content-Type header is missing or invalid'));
     }
-
-    const { type } = parsedContentType;
 
     // Check if content type is supported
     if (!Fragment.isSupportedType(type)) {

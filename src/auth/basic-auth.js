@@ -7,6 +7,7 @@ const auth = require('http-auth');
 const passport = require('passport');
 const authPassport = require('http-auth-passport');
 const logger = require('../logger');
+const authorize = require('./auth-middleware');
 
 // We expect HTPASSWD_FILE to be defined.
 if (!process.env.HTPASSWD_FILE) {
@@ -16,15 +17,22 @@ if (!process.env.HTPASSWD_FILE) {
 // Log that we're using Basic Auth
 logger.info('Using HTTP Basic Auth for auth');
 
-module.exports.strategy = () =>
+module.exports.strategy = () => {
   // For our Passport authentication strategy, we'll look for a
   // username/password pair in the Authorization header.
-  authPassport(
+  const strategy = authPassport(
     auth.basic({
       file: process.env.HTPASSWD_FILE,
     })
   );
+  // Ensure the strategy has the correct name
+  if (!strategy.name) {
+    strategy.name = 'http';
+  }
+  return strategy;
+};
 
-module.exports.authenticate = () => passport.authenticate('http', { session: false });
+// Use authorize middleware to hash emails for privacy
+module.exports.authenticate = () => authorize('http');
 
 

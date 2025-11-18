@@ -7,6 +7,10 @@ require('dotenv').config();
 // We want to log any crash cases so we can debug later from logs.
 const logger = require('./logger');
 
+// Log that we're starting up (this should always be visible)
+logger.info('Fragments server starting...');
+logger.debug({ logLevel: process.env.LOG_LEVEL || 'info' }, 'Logger initialized');
+
 // If we're going to crash because of an uncaught exception, log it first.
 // https://nodejs.org/api/process.html#event-uncaughtexception
 process.on('uncaughtException', (err, origin) => {

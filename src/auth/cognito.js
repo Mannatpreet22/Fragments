@@ -58,6 +58,8 @@ module.exports.strategy = () =>
     }
   });
 
-module.exports.authenticate = () => passport.authenticate('bearer', { session: false });
+// Use authorize middleware to hash emails for privacy
+const authorize = require('./auth-middleware');
+module.exports.authenticate = () => authorize('bearer');
 
 
