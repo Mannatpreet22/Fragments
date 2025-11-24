@@ -66,16 +66,6 @@ COPY --from=builder /app/src ./src
 # For production deployments, use AWS Cognito authentication instead.
 COPY --from=builder /app/tests/.htpasswd ./tests/.htpasswd
 
-# Create a non-root user for better security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 && \
-    chown -R nodejs:nodejs /app
-
-# Switch to non-root user
-USER nodejs
-
-# Expose port 8080 to indicate what port the container listens on
-# This is mostly for documentation purposes
 EXPOSE 8080
 
 # Start the container by running our server
