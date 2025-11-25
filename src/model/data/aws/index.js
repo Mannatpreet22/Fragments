@@ -125,15 +125,36 @@ async function writeFragmentData(ownerId, id, data) {
     Body: data,
   };
 
+  // Log before attempting S3 upload for debugging
+  logger.info({ 
+    Bucket: params.Bucket, 
+    Key: params.Key, 
+    ownerId, 
+    id, 
+    dataSize: data.length,
+    hasBucket: !!process.env.AWS_S3_BUCKET_NAME,
+    hasRegion: !!process.env.AWS_REGION
+  }, 'Attempting to write fragment data to S3');
+
   // Create a PUT Object command to send to S3
   const command = new PutObjectCommand(params);
   try {
     // Use our client to send the command
     await s3Client.send(command);
+    logger.info({ Bucket: params.Bucket, Key: params.Key }, 'Successfully uploaded fragment data to S3');
   } catch (err) {
     // If anything goes wrong, log enough info that we can debug
     const { Bucket, Key } = params;
-    logger.error({ err, Bucket, Key }, 'Error uploading fragment data to S3');
+    logger.error({ 
+      err, 
+      errName: err.name,
+      errMessage: err.message,
+      errCode: err.Code,
+      Bucket, 
+      Key,
+      ownerId,
+      id
+    }, 'Error uploading fragment data to S3');
     throw new Error('unable to upload fragment data');
   }
 
