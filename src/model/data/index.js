@@ -2,9 +2,10 @@
 
 /**
  * Data strategy selector
- * Currently only supports memory strategy, but will be extended
- * to support AWS data stores (DynamoDB, S3) in the future
+ * If the environment sets an AWS Region, we'll use AWS backend
+ * services (S3, DynamoDB); otherwise, we'll use an in-memory db.
  */
 
-// For now, we only have the memory strategy
-module.exports = require('./memory');
+// If the environment sets an AWS Region, we'll use AWS backend
+// services (S3, DynamoDB); otherwise, we'll use an in-memory db.
+module.exports = process.env.AWS_REGION ? require('./aws') : require('./memory');
