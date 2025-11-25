@@ -35,7 +35,7 @@
           ],
           "environmentFiles": [],
           "essential": true,
-          "image": "851725405015.dkr.ecr.us-east-1.amazonaws.com/fragments@sha256:720d4e6963cdcef98e48580ac4414b112f9ff1d7956b8aeadedbc5df5f146ed1",
+          "image": "851725405015.dkr.ecr.us-east-1.amazonaws.com/fragments:latest",
           "logConfiguration": {
               "logDriver": "awslogs",
               "options": {
@@ -70,8 +70,6 @@
   "memory": "512",
   "networkMode": "awsvpc",
   "placementConstraints": [],
-  "registeredAt": "2025-11-25T01:23:57.045Z",
-  "registeredBy": "arn:aws:sts::851725405015:assumed-role/voclabs/user4376076=Khurana,_Mannatpreet_Singh",
   "requiresAttributes": [
       {
           "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
@@ -107,13 +105,10 @@
   "requiresCompatibilities": [
       "FARGATE"
   ],
-  "revision": 9,
   "runtimePlatform": {
       "cpuArchitecture": "X86_64",
       "operatingSystemFamily": "LINUX"
   },
-  "status": "ACTIVE",
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:851725405015:task-definition/fragments-task:9",
   "taskRoleArn": "arn:aws:iam::851725405015:role/LabRole",
   "volumes": [],
   "tags": []
