@@ -94,8 +94,8 @@ jobs:
             LOG_LEVEL=info
             NODE_ENV=production
             AWS_REGION=us-east-1
-            AWS_COGNITO_POOL_ID=${{ secrets.AWS_COGNITO_POOL_ID }}
-            AWS_COGNITO_CLIENT_ID=${{ secrets.AWS_COGNITO_CLIENT_ID }}
+            AWS_COGNITO_POOL_ID=us-east-1_cvztLC5eO
+            AWS_COGNITO_CLIENT_ID=4sm4hcff78cnu6njphuh3j9lsh
             API_URL=http://fragments-lb-1765032662.us-east-1.elb.amazonaws.com
             AWS_S3_BUCKET_NAME=mannatpreet-fragments
 
