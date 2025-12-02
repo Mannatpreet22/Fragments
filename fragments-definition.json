@@ -21,11 +21,19 @@
               },
               {
                   "name": "AWS_COGNITO_CLIENT_ID",
-                  "value": "4sm4hcff78cnu6njphuh3j9lsh"
+                  "value": "50bshhuk9gte8dmunhluptpbvo"
               },
               {
                   "name": "LOG_LEVEL",
                   "value": "debug"
+              },
+              {
+                  "name": "API_URL",
+                  "value": "http://fragments-lb-1505227028.us-east-1.elb.amazonaws.com"
+              },
+              {
+                  "name": "NODE_ENV",
+                  "value": "production"
               }
           ],
           "environmentFiles": [],
