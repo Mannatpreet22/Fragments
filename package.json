@@ -1,6 +1,6 @@
 {
   "name": "fragments",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "description": "Fragments back-end API",
   "main": "index.js",
   "scripts": {
