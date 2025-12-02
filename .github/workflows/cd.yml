@@ -70,41 +70,43 @@ jobs:
           # Use the git tag version and `latest`
           tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}, ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
 
+      # COMMENTED OUT: Only pushing to ECR, not deploying to ECS yet
       # We need to update our fragment's Task Definition JSON
       # (i.e., fragments-definition.json) to use the newly
       # updated Docker Image to use (i.e., the tag we just pushed to ECR).
       # We can also update/set the environment variables if we want.
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: update-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPO: fragments
-          VERSION_TAG: ${{ github.ref_name }}
-        with:
-          task-definition: fragments-definition.json
-          container-name: fragments-container
-          # Use the image we just built and pushed to ECR for this tag
-          image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}
-          # Add all the necessary environment variables, using GitHub Encrypted Secrets
-          # for any values that should not be checked into git directly.
-          # NOTE: Update these with your actual values from your ECS task definition
-          environment-variables: |
-            PORT=80
-            LOG_LEVEL=info
-            NODE_ENV=production
-            AWS_REGION=us-east-1
-            AWS_COGNITO_POOL_ID=us-east-1_cvztLC5eO
-            AWS_COGNITO_CLIENT_ID=4sm4hcff78cnu6njphuh3j9lsh
-            API_URL=http://fragments-lb-1765032662.us-east-1.elb.amazonaws.com
-            AWS_S3_BUCKET_NAME=mannatpreet-fragments
+      # - name: Fill in the new image ID in the Amazon ECS task definition
+      #   id: update-task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   env:
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     ECR_REPO: fragments
+      #     VERSION_TAG: ${{ github.ref_name }}
+      #   with:
+      #     task-definition: fragments-definition.json
+      #     container-name: fragments-container
+      #     # Use the image we just built and pushed to ECR for this tag
+      #     image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}
+      #     # Add all the necessary environment variables, using GitHub Encrypted Secrets
+      #     # for any values that should not be checked into git directly.
+      #     # NOTE: Update these with your actual values from your ECS task definition
+      #     environment-variables: |
+      #       PORT=80
+      #       LOG_LEVEL=info
+      #       NODE_ENV=production
+      #       AWS_REGION=us-east-1
+      #       AWS_COGNITO_POOL_ID=us-east-1_cvztLC5eO
+      #       AWS_COGNITO_CLIENT_ID=4sm4hcff78cnu6njphuh3j9lsh
+      #       API_URL=http://fragments-lb-1765032662.us-east-1.elb.amazonaws.com
+      #       AWS_S3_BUCKET_NAME=mannatpreet-fragments
 
+      # COMMENTED OUT: Only pushing to ECR, not deploying to ECS yet
       # Deploy the updated task definition to ECS
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.update-task-def.outputs.task-definition }}
-          cluster: fragments-cluster
-          service: fragments-service
-          wait-for-service-stability: true
+      # - name: Deploy Amazon ECS task definition
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      #   with:
+      #     task-definition: ${{ steps.update-task-def.outputs.task-definition }}
+      #     cluster: fragments-cluster
+      #     service: fragments-service
+      #     wait-for-service-stability: true
 
