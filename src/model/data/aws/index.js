@@ -187,8 +187,12 @@ async function writeFragmentData(ownerId, id, data) {
     throw new Error('Fragment owner mismatch');
   }
 
-  // Update the fragment size in DynamoDB
-  const updatedFragment = { ...fragment, size: data.length };
+  // Update the fragment size and updated timestamp in DynamoDB
+  const updatedFragment = { 
+    ...fragment, 
+    size: data.length,
+    updated: new Date().toISOString()
+  };
   await writeFragment(updatedFragment);
 
   logger.info({ ownerId, id, size: data.length }, 'Fragment data written to S3');
