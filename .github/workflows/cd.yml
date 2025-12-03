@@ -98,6 +98,7 @@ jobs:
             AWS_COGNITO_CLIENT_ID=50bshhuk9gte8dmunhluptpbvo
             API_URL=http://fragments-lb-1505227028.us-east-1.elb.amazonaws.com
             AWS_S3_BUCKET_NAME=mannatpreet-fragments
+            AWS_DYNAMODB_TABLE_NAME=fragments
 
       # Deploy the updated task definition to ECS
       - name: Deploy Amazon ECS task definition

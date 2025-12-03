@@ -157,9 +157,13 @@ class Fragment {
   static async byUser(ownerId, expand = false) {
     logger.debug({ ownerId, expand }, 'Loading fragments by user');
     
-    const fragments = await data.listFragments(ownerId);
+    // Pass expand parameter to listFragments
+    // When expand=false, returns array of IDs
+    // When expand=true, returns array of full fragment objects
+    const fragments = await data.listFragments(ownerId, expand);
     
-    if (expand) {
+    // If expand is true, we have full fragment objects, so load data for each
+    if (expand && fragments && fragments.length > 0) {
       // Load data for each fragment
       for (const fragment of fragments) {
         const dataBuffer = await data.readFragmentData(ownerId, fragment.id);

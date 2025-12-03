@@ -111,14 +111,23 @@ async function writeFragmentData(ownerId, id, data) {
 /**
  * Get all fragments for an owner
  * @param {string} ownerId - The owner ID
- * @returns {Promise<Array>} Array of fragment objects
+ * @param {boolean} expand - Whether to return full objects or just IDs
+ * @returns {Promise<Array>} Array of fragment objects or IDs
  */
-async function listFragments(ownerId) {
-  logger.debug({ ownerId }, 'Listing fragments for owner from memory DB');
+async function listFragments(ownerId, expand = false) {
+  logger.debug({ ownerId, expand }, 'Listing fragments for owner from memory DB');
   
   const fragments = memoryDB.getByOwner(ownerId);
   
-  logger.debug({ ownerId, count: fragments.length }, 'Fragments listed from memory DB');
+  // If expand is false, return only IDs
+  if (!expand) {
+    const ids = fragments.map(fragment => fragment.id || fragment);
+    logger.debug({ ownerId, count: ids.length }, 'Fragments listed from memory DB (IDs only)');
+    return ids;
+  }
+  
+  // If expand is true, return full fragment objects
+  logger.debug({ ownerId, count: fragments.length }, 'Fragments listed from memory DB (full objects)');
   return fragments;
 }
 
