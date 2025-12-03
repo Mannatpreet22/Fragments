@@ -198,7 +198,7 @@ describe('Fragment', () => {
       const result = await Fragment.byUser('user1');
 
       expect(result).toEqual(fragments);
-      expect(data.listFragments).toHaveBeenCalledWith('user1');
+      expect(data.listFragments).toHaveBeenCalledWith('user1', false);
     });
 
     test('returns fragments with data when expand is true', async () => {

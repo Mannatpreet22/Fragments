@@ -31,42 +31,10 @@ describe('GET /v1/fragments', () => {
   });
 
   test('authenticated users get a fragments array', async () => {
-    const mockFragments = [
-      {
-        id: 'frag1',
-        ownerId: 'user1@email.com',
-        type: 'text/plain',
-        size: 10,
-        created: '2023-01-01T00:00:00.000Z',
-        updated: '2023-01-01T00:00:00.000Z',
-        toJSON: jest.fn().mockReturnValue({
-          id: 'frag1',
-          ownerId: 'user1@email.com',
-          type: 'text/plain',
-          size: 10,
-          created: '2023-01-01T00:00:00.000Z',
-          updated: '2023-01-01T00:00:00.000Z',
-        }),
-      },
-      {
-        id: 'frag2',
-        ownerId: 'user1@email.com',
-        type: 'text/html',
-        size: 20,
-        created: '2023-01-01T00:00:00.000Z',
-        updated: '2023-01-01T00:00:00.000Z',
-        toJSON: jest.fn().mockReturnValue({
-          id: 'frag2',
-          ownerId: 'user1@email.com',
-          type: 'text/html',
-          size: 20,
-          created: '2023-01-01T00:00:00.000Z',
-          updated: '2023-01-01T00:00:00.000Z',
-        }),
-      },
-    ];
+    // When expand=false, Fragment.byUser returns an array of IDs (strings)
+    const mockFragmentIds = ['frag1', 'frag2'];
 
-    Fragment.byUser.mockResolvedValue(mockFragments);
+    Fragment.byUser.mockResolvedValue(mockFragmentIds);
 
     const res = await request(app)
       .get('/v1/fragments')
@@ -76,6 +44,7 @@ describe('GET /v1/fragments', () => {
     expect(res.body.status).toBe('ok');
     expect(Array.isArray(res.body.fragments)).toBe(true);
     expect(res.body.fragments).toHaveLength(2);
+    // Route handler wraps IDs in objects: { id: "frag1" }
     expect(res.body.fragments[0].id).toBe('frag1');
     expect(res.body.fragments[1].id).toBe('frag2');
     expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);

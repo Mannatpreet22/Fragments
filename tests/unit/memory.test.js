@@ -143,7 +143,8 @@ describe('Memory Data Layer', () => {
       memoryDB.set('frag2', fragment2);
       memoryDB.set('frag3', fragment3);
       
-      const result = await listFragments('user1');
+      // When expand=true, returns full fragment objects
+      const result = await listFragments('user1', true);
       expect(result).toHaveLength(2);
       expect(result).toContainEqual({ id: 'frag1', ...fragment1 });
       expect(result).toContainEqual({ id: 'frag2', ...fragment2 });
