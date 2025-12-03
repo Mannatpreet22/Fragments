@@ -119,11 +119,15 @@ async function listFragments(ownerId, expand = false) {
   
   const fragments = memoryDB.getByOwner(ownerId);
   
-  // If expand is false, return only IDs
+  // If expand is false, return objects with id, created, updated
   if (!expand) {
-    const ids = fragments.map(fragment => fragment.id || fragment);
-    logger.debug({ ownerId, count: ids.length }, 'Fragments listed from memory DB (IDs only)');
-    return ids;
+    const basicInfo = fragments.map(fragment => ({
+      id: fragment.id || fragment,
+      created: fragment.created,
+      updated: fragment.updated,
+    }));
+    logger.debug({ ownerId, count: basicInfo.length }, 'Fragments listed from memory DB (id, created, updated)');
+    return basicInfo;
   }
   
   // If expand is true, return full fragment objects

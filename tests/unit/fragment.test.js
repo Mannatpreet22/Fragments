@@ -188,9 +188,10 @@ describe('Fragment', () => {
 
   describe('byUser', () => {
     test('returns fragments without data by default', async () => {
+      // When expand=false, listFragments returns objects with id, created, updated
       const fragments = [
-        { id: 'frag1', ownerId: 'user1', type: 'text/plain', size: 10 },
-        { id: 'frag2', ownerId: 'user1', type: 'text/html', size: 20 },
+        { id: 'frag1', created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' },
+        { id: 'frag2', created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' },
       ];
 
       data.listFragments.mockResolvedValue(fragments);

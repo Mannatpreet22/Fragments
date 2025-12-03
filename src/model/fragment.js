@@ -158,7 +158,7 @@ class Fragment {
     logger.debug({ ownerId, expand }, 'Loading fragments by user');
     
     // Pass expand parameter to listFragments
-    // When expand=false, returns array of IDs
+    // When expand=false, returns array of objects with id, created, updated
     // When expand=true, returns array of full fragment objects
     const fragments = await data.listFragments(ownerId, expand);
     

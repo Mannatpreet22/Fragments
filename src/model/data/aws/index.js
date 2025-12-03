@@ -220,12 +220,13 @@ async function listFragments(ownerId, expand = false) {
     },
   };
 
-  // Limit to only `id` if we aren't supposed to expand. Without doing this
+  // Limit attributes if we aren't supposed to expand. Without doing this
   // we'll get back every attribute.  The projection expression defines a list
   // of attributes to return, see:
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ProjectionExpressions.html
   if (!expand) {
-    params.ProjectionExpression = 'id';
+    // Include id, created, and updated for basic fragment info
+    params.ProjectionExpression = 'id,created,updated';
   }
 
   // Create a QUERY command to send to DynamoDB
@@ -233,12 +234,11 @@ async function listFragments(ownerId, expand = false) {
   try {
     // Wait for the data to come back from AWS
     const data = await ddbDocClient.send(command);
-    // If we haven't expanded to include all attributes, remap this array from
-    // [ {"id":"b9e7a264-630f-436d-a785-27f30233faea"}, {"id":"dad25b07-8cd6-498b-9aaf-46d358ea97fe"} ,... ] to
-    // [ "b9e7a264-630f-436d-a785-27f30233faea", "dad25b07-8cd6-498b-9aaf-46d358ea97fe", ... ]
     const items = data?.Items || [];
     logger.debug({ ownerId, count: items.length, expand }, 'Fragments listed from DynamoDB');
-    return !expand ? items.map((item) => item.id) : items;
+    // When expand=false, return items with id, created, updated
+    // When expand=true, return full fragment objects
+    return items;
   } catch (err) {
     logger.error({ err, params }, 'error getting all fragments for user from DynamoDB');
     throw err;

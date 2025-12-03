@@ -31,10 +31,13 @@ describe('GET /v1/fragments', () => {
   });
 
   test('authenticated users get a fragments array', async () => {
-    // When expand=false, Fragment.byUser returns an array of IDs (strings)
-    const mockFragmentIds = ['frag1', 'frag2'];
+    // When expand=false, Fragment.byUser returns an array of objects with id, created, updated
+    const mockFragments = [
+      { id: 'frag1', created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' },
+      { id: 'frag2', created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' },
+    ];
 
-    Fragment.byUser.mockResolvedValue(mockFragmentIds);
+    Fragment.byUser.mockResolvedValue(mockFragments);
 
     const res = await request(app)
       .get('/v1/fragments')
@@ -44,8 +47,10 @@ describe('GET /v1/fragments', () => {
     expect(res.body.status).toBe('ok');
     expect(Array.isArray(res.body.fragments)).toBe(true);
     expect(res.body.fragments).toHaveLength(2);
-    // Route handler wraps IDs in objects: { id: "frag1" }
+    // Route handler returns objects with id, created, updated
     expect(res.body.fragments[0].id).toBe('frag1');
+    expect(res.body.fragments[0].created).toBe('2023-01-01T00:00:00.000Z');
+    expect(res.body.fragments[0].updated).toBe('2023-01-01T00:00:00.000Z');
     expect(res.body.fragments[1].id).toBe('frag2');
     expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);
   });
@@ -76,12 +81,10 @@ describe('GET /v1/fragments', () => {
   });
 
   test('returns fragments without data when expand is not set', async () => {
+    // When expand=false, returns objects with id, created, updated
     const mockFragments = [
       {
         id: 'frag1',
-        ownerId: 'user1@email.com',
-        type: 'text/plain',
-        size: 10,
         created: '2023-01-01T00:00:00.000Z',
         updated: '2023-01-01T00:00:00.000Z',
       },
@@ -94,7 +97,13 @@ describe('GET /v1/fragments', () => {
       .auth('user1@email.com', 'password1');
     
     expect(res.statusCode).toBe(200);
+    expect(res.body.fragments[0].id).toBe('frag1');
+    expect(res.body.fragments[0].created).toBe('2023-01-01T00:00:00.000Z');
+    expect(res.body.fragments[0].updated).toBe('2023-01-01T00:00:00.000Z');
     expect(res.body.fragments[0].data).toBeUndefined();
+    expect(res.body.fragments[0].ownerId).toBeUndefined();
+    expect(res.body.fragments[0].type).toBeUndefined();
+    expect(res.body.fragments[0].size).toBeUndefined();
     expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);
   });
 
@@ -159,15 +168,12 @@ describe('GET /v1/fragments', () => {
   });
 
   test('returns fragments without data when expand is false', async () => {
+    // When expand=false, returns objects with id, created, updated
     const mockFragments = [
       {
         id: 'frag1',
-        ownerId: 'user1@email.com',
-        type: 'text/plain',
-        size: 10,
         created: '2023-01-01T00:00:00.000Z',
         updated: '2023-01-01T00:00:00.000Z',
-        data: Buffer.from('test'),
       },
     ];
 
@@ -178,7 +184,13 @@ describe('GET /v1/fragments', () => {
       .auth('user1@email.com', 'password1');
     
     expect(res.statusCode).toBe(200);
+    expect(res.body.fragments[0].id).toBe('frag1');
+    expect(res.body.fragments[0].created).toBe('2023-01-01T00:00:00.000Z');
+    expect(res.body.fragments[0].updated).toBe('2023-01-01T00:00:00.000Z');
     expect(res.body.fragments[0].data).toBeUndefined();
+    expect(res.body.fragments[0].ownerId).toBeUndefined();
+    expect(res.body.fragments[0].type).toBeUndefined();
+    expect(res.body.fragments[0].size).toBeUndefined();
     expect(Fragment.byUser).toHaveBeenCalledWith('user1@email.com', false);
   });
 });

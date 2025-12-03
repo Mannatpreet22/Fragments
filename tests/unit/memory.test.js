@@ -134,10 +134,26 @@ describe('Memory Data Layer', () => {
       expect(result).toEqual([]);
     });
 
-    test('returns fragments for specific owner', async () => {
-      const fragment1 = { ownerId: 'user1', type: 'text/plain', size: 10 };
-      const fragment2 = { ownerId: 'user1', type: 'text/html', size: 20 };
-      const fragment3 = { ownerId: 'user2', type: 'text/plain', size: 15 };
+    test('returns fragments with id, created, updated when expand is false', async () => {
+      const fragment1 = { ownerId: 'user1', type: 'text/plain', size: 10, created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' };
+      const fragment2 = { ownerId: 'user1', type: 'text/html', size: 20, created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' };
+      const fragment3 = { ownerId: 'user2', type: 'text/plain', size: 15, created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' };
+      
+      memoryDB.set('frag1', fragment1);
+      memoryDB.set('frag2', fragment2);
+      memoryDB.set('frag3', fragment3);
+      
+      // When expand=false, returns objects with id, created, updated
+      const result = await listFragments('user1', false);
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual({ id: 'frag1', created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' });
+      expect(result).toContainEqual({ id: 'frag2', created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' });
+    });
+
+    test('returns fragments for specific owner when expand is true', async () => {
+      const fragment1 = { ownerId: 'user1', type: 'text/plain', size: 10, created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' };
+      const fragment2 = { ownerId: 'user1', type: 'text/html', size: 20, created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' };
+      const fragment3 = { ownerId: 'user2', type: 'text/plain', size: 15, created: '2023-01-01T00:00:00.000Z', updated: '2023-01-01T00:00:00.000Z' };
       
       memoryDB.set('frag1', fragment1);
       memoryDB.set('frag2', fragment2);

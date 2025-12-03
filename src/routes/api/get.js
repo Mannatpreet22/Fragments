@@ -29,12 +29,16 @@ module.exports = async (req, res) => {
     logger.info({ ownerId, count: fragments.length, expand }, 'Fragments retrieved successfully');
 
     // Return success response with fragments array
-    // When expand is false, fragments is an array of IDs (strings)
-    // When expand is true, fragments is an array of fragment objects
+    // When expand is false, fragments is an array of objects with id, created, updated
+    // When expand is true, fragments is an array of full fragment objects
     if (!expand) {
-      // Return array of IDs
+      // Return array with id, created, and updated
       res.status(200).json(createSuccessResponse({
-        fragments: fragments.map(id => ({ id })),
+        fragments: fragments.map(fragment => ({
+          id: fragment.id,
+          created: fragment.created,
+          updated: fragment.updated,
+        })),
       }));
     } else {
       // Return array of full fragment metadata objects
