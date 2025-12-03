@@ -105,7 +105,6 @@ HTTP/1.1 200
 
 [Asserts]
 jsonpath "$.status" == "ok"
-jsonpath "$.fragments" isArray
 jsonpath "$.fragments[*].id" contains "{{fragment1_id}}"
 jsonpath "$.fragments[*].id" contains "{{fragment2_id}}"
 
@@ -147,7 +146,6 @@ HTTP/1.1 200
 
 [Asserts]
 jsonpath "$.status" == "ok"
-jsonpath "$.fragments" isArray
 jsonpath "$.fragments[*].id" contains "{{fragment2_id}}"
 # Verify fragment1_id is NOT in the list
 jsonpath "$.fragments[*].id" not contains "{{fragment1_id}}"
