@@ -1,12 +1,5 @@
-// src/model/data/memory/memory-db.js
-
 const logger = require('../../../logger');
 
-/**
- * A simple in-memory database for storing fragments.
- * This is a temporary solution for development and testing.
- * In production, this would be replaced with a proper database.
- */
 class MemoryDB {
   constructor() {
     this.db = new Map();
@@ -71,10 +64,6 @@ class MemoryDB {
     return this.db.has(id);
   }
 
-  /**
-   * Get all fragments (for debugging/testing)
-   * @returns {Array} Array of all fragments
-   */
   getAll() {
     logger.debug('MemoryDB: getting all fragments');
     const fragments = [];
@@ -84,9 +73,6 @@ class MemoryDB {
     return fragments;
   }
 
-  /**
-   * Clear all fragments (for testing)
-   */
   clear() {
     logger.debug('MemoryDB: clearing all fragments');
     this.db.clear();
@@ -101,7 +87,6 @@ class MemoryDB {
   }
 }
 
-// Create a singleton instance
 const memoryDB = new MemoryDB();
 
 module.exports = memoryDB;

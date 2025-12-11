@@ -1,13 +1,7 @@
-// src/routes/api/delete.js
-
 const Fragment = require('../../model/fragment');
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const logger = require('../../logger');
 
-/**
- * Delete a fragment by ID
- * DELETE /v1/fragments/:id
- */
 module.exports = async (req, res) => {
   try {
     const { id } = req.params;
@@ -15,20 +9,17 @@ module.exports = async (req, res) => {
 
     logger.debug({ id, ownerId }, 'Deleting fragment');
 
-    // Check if user is authenticated
     if (!ownerId) {
       logger.warn('Unauthenticated request to delete fragment');
       return res.status(401).json(createErrorResponse(401, 'Authentication required'));
     }
 
-    // Check if fragment exists and belongs to user
     const fragment = await Fragment.byId(ownerId, id);
     if (!fragment) {
       logger.warn({ id, ownerId }, 'Fragment not found or access denied');
       return res.status(404).json(createErrorResponse(404, 'Fragment not found'));
     }
 
-    // Delete the fragment
     const deleted = await Fragment.delete(ownerId, id);
     
     if (!deleted) {
@@ -38,7 +29,6 @@ module.exports = async (req, res) => {
 
     logger.info({ id, ownerId }, 'Fragment deleted successfully');
 
-    // Return success response
     res.status(200).json(createSuccessResponse({
       message: 'Fragment deleted successfully'
     }));

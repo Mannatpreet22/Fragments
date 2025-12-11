@@ -1,5 +1,3 @@
-// src/model/fragment.js
-
 const crypto = require('crypto');
 const data = require('./data');
 const logger = require('../logger');
@@ -32,15 +30,12 @@ class Fragment {
    */
   static isSupportedType(type) {
     const supportedTypes = [
-      // Text types
       'text/plain',
       'text/html',
       'text/css',
       'text/javascript',
       'text/markdown',
-      // Data types
       'application/json',
-      // Image types
       'image/png',
       'image/jpeg',
       'image/webp',
@@ -61,15 +56,12 @@ class Fragment {
    */
   static getExtension(type) {
     const extensions = {
-      // Text types
       'text/plain': '.txt',
       'text/html': '.html',
       'text/css': '.css',
       'text/javascript': '.js',
       'text/markdown': '.md',
-      // Data types
       'application/json': '.json',
-      // Image types
       'image/png': '.png',
       'image/jpeg': '.jpg',
       'image/webp': '.webp',

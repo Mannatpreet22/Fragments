@@ -1,5 +1,3 @@
-// src/model/data/memory/index.js
-
 const memoryDB = require('./memory-db');
 const logger = require('../../../logger');
 
@@ -95,7 +93,6 @@ async function writeFragmentData(ownerId, id, data) {
     throw new Error('Fragment owner mismatch');
   }
   
-  // Update the fragment with new data
   const updatedFragment = {
     ...fragment,
     data,
@@ -119,7 +116,6 @@ async function listFragments(ownerId, expand = false) {
   
   const fragments = memoryDB.getByOwner(ownerId);
   
-  // If expand is false, return objects with id, created, updated
   if (!expand) {
     const basicInfo = fragments.map(fragment => ({
       id: fragment.id || fragment,
@@ -130,7 +126,6 @@ async function listFragments(ownerId, expand = false) {
     return basicInfo;
   }
   
-  // If expand is true, return full fragment objects
   logger.debug({ ownerId, count: fragments.length }, 'Fragments listed from memory DB (full objects)');
   return fragments;
 }

@@ -1,15 +1,5 @@
-// src/model/data/index.js
-
-/**
- * Data strategy selector
- * If the environment sets an AWS Region, we'll use AWS backend
- * services (S3, DynamoDB); otherwise, we'll use an in-memory db.
- */
-
 const logger = require('../../logger');
 
-// If the environment sets an AWS Region, we'll use AWS backend
-// services (S3, DynamoDB); otherwise, we'll use an in-memory db.
 const hasAwsRegion = !!process.env.AWS_REGION;
 const backend = hasAwsRegion ? 'AWS (S3)' : 'Memory';
 

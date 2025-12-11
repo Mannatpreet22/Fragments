@@ -1,13 +1,7 @@
-// src/routes/api/get-info.js
-
 const Fragment = require('../../model/fragment');
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const logger = require('../../logger');
 
-/**
- * Get fragment metadata by ID
- * GET /v1/fragments/:id/info
- */
 module.exports = async (req, res) => {
   try {
     const { id } = req.params;
@@ -15,13 +9,11 @@ module.exports = async (req, res) => {
 
     logger.debug({ id, ownerId }, 'Getting fragment info by ID');
 
-    // Check if user is authenticated
     if (!ownerId) {
       logger.warn('Unauthenticated request to get fragment info');
       return res.status(401).json(createErrorResponse(401, 'Authentication required'));
     }
 
-    // Get fragment metadata
     const fragment = await Fragment.byId(ownerId, id);
     
     if (!fragment) {
@@ -36,7 +28,6 @@ module.exports = async (req, res) => {
       size: fragment.size 
     }, 'Fragment info retrieved successfully');
 
-    // Return fragment metadata as JSON
     res.status(200).json(createSuccessResponse({
       fragment: fragment.toJSON(),
     }));
