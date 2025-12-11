@@ -223,13 +223,14 @@ describe('GET /v1/fragments/:id', () => {
 
     Fragment.byId.mockResolvedValue(mockFragment);
 
+    // Try to convert text/plain to image/png (cross-type conversion, not supported)
     const res = await request(app)
-      .get('/v1/fragments/test-id.html')
+      .get('/v1/fragments/test-id.png')
       .auth('user1@email.com', 'password1');
     
     expect(res.statusCode).toBe(415);
     expect(res.body.status).toBe('error');
-    expect(res.body.error.message).toContain('Conversion from text/plain to .html is not supported');
+    expect(res.body.error.message).toContain('Conversion from text/plain to image/png is not supported');
   });
 
   test('returns 415 for unsupported extension', async () => {
@@ -244,13 +245,14 @@ describe('GET /v1/fragments/:id', () => {
 
     Fragment.byId.mockResolvedValue(mockFragment);
 
+    // Try to use an unknown extension (e.g., .mp4)
     const res = await request(app)
-      .get('/v1/fragments/test-id.txt')
+      .get('/v1/fragments/test-id.mp4')
       .auth('user1@email.com', 'password1');
     
     expect(res.statusCode).toBe(415);
     expect(res.body.status).toBe('error');
-    expect(res.body.error.message).toContain('Conversion from text/markdown to .txt is not supported');
+    expect(res.body.error.message).toContain('Unknown file extension');
   });
 
   test('handles fragment ID with extension correctly', async () => {

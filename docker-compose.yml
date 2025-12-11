@@ -34,6 +34,9 @@ services:
     # Ports to publish
     ports:
       - '8080:8080'
+    # Mount .htpasswd file so changes are reflected without rebuilding
+    volumes:
+      - ./tests/.htpasswd:/app/tests/.htpasswd:ro
 
   # DynamoDB Local, see: https://hub.docker.com/r/amazon/dynamodb-local
   dynamodb-local:

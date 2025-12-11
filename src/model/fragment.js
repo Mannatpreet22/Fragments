@@ -32,14 +32,20 @@ class Fragment {
    */
   static isSupportedType(type) {
     const supportedTypes = [
+      // Text types
       'text/plain',
       'text/html',
       'text/css',
       'text/javascript',
-      'application/json',
       'text/markdown',
-      'text/xml',
-      'application/xml',
+      // Data types
+      'application/json',
+      // Image types
+      'image/png',
+      'image/jpeg',
+      'image/webp',
+      'image/avif',
+      'image/gif',
     ];
     
     const isSupported = supportedTypes.includes(type);
@@ -55,14 +61,20 @@ class Fragment {
    */
   static getExtension(type) {
     const extensions = {
+      // Text types
       'text/plain': '.txt',
       'text/html': '.html',
       'text/css': '.css',
       'text/javascript': '.js',
-      'application/json': '.json',
       'text/markdown': '.md',
-      'text/xml': '.xml',
-      'application/xml': '.xml',
+      // Data types
+      'application/json': '.json',
+      // Image types
+      'image/png': '.png',
+      'image/jpeg': '.jpg',
+      'image/webp': '.webp',
+      'image/avif': '.avif',
+      'image/gif': '.gif',
     };
     
     const extension = extensions[type] || '.txt';
@@ -224,6 +236,48 @@ class Fragment {
     this.data = await data.readFragmentData(this.ownerId, this.id);
     
     return this.data;
+  }
+
+  /**
+   * Update fragment data and metadata
+   * @param {Buffer} newData - The new data buffer
+   * @param {string} newType - The new content type
+   * @returns {Promise<Fragment>} The updated fragment
+   */
+  async update(newData, newType) {
+    logger.debug({ id: this.id, ownerId: this.ownerId, newType }, 'Updating fragment');
+    
+    if (!Buffer.isBuffer(newData)) {
+      throw new Error('Data must be a Buffer');
+    }
+    
+    if (newData.length === 0) {
+      throw new Error('Data cannot be empty');
+    }
+    
+    // Update fragment properties
+    this.data = newData;
+    this.type = newType;
+    this.size = newData.length;
+    this.updated = new Date().toISOString();
+    
+    // Save updated metadata
+    const fragmentData = {
+      id: this.id,
+      ownerId: this.ownerId,
+      type: this.type,
+      size: this.size,
+      created: this.created,
+      updated: this.updated,
+    };
+    
+    await data.writeFragment(fragmentData);
+    
+    // Save updated data
+    await data.writeFragmentData(this.ownerId, this.id, this.data);
+    
+    logger.info({ id: this.id, ownerId: this.ownerId, type: this.type, size: this.size }, 'Fragment updated successfully');
+    return this;
   }
 
   /**

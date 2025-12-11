@@ -22,9 +22,41 @@ on:
 jobs:
   # NOTE: this assumes our CI jobs have already passed previously
   # (i.e., that we don't tag a commit manually until we know a build is working)
+  
+  # Run integration tests before deploying
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install node dependencies
+        # NOTE: we need to install dev dependencies too vs. production only for hurl
+        run: npm install
+
+      - name: Build Containers
+        run: docker compose up -d
+
+      - name: Setup Local AWS Resources
+        # NOTE: this file needs to be made executable *before* you check into git:
+        # $ chmod +x ./scripts/local-aws-setup.sh
+        run: ./scripts/local-aws-setup.sh
+
+      - name: Run Hurl Tests
+        run: npm run test:integration
+
   aws:
     name: AWS
     runs-on: ubuntu-latest
+    # Don't deploy unless integration tests pass
+    needs: [integration-tests]
     steps:
       - name: Check out code
         uses: actions/checkout@v4

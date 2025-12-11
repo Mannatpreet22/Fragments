@@ -1,8 +1,8 @@
 # Test that posting an unsupported Content-Type produces a 415 error
 POST http://localhost:8080/v1/fragments
 
-# We're sending an unsupported content type (image/png is not in the supported list)
-Content-Type: image/png
+# We're sending an unsupported content type (video/mp4 is not in the supported list)
+Content-Type: video/mp4
 
 # Include HTTP Basic Auth credentials
 [BasicAuth]

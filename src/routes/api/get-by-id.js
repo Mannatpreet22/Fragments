@@ -3,10 +3,7 @@
 const Fragment = require('../../model/fragment');
 const { createErrorResponse } = require('../../response');
 const logger = require('../../logger');
-const MarkdownIt = require('markdown-it');
-
-// Initialize markdown-it for converting Markdown to HTML
-const md = new MarkdownIt();
+const converter = require('../../converter');
 
 /**
  * Get a specific fragment by ID
@@ -56,26 +53,55 @@ module.exports = async (req, res) => {
 
     // Handle type conversion if extension is requested
     if (requestedExtension) {
-      // Currently only support Markdown (.md) to HTML (.html) conversion
-      if (fragment.type === 'text/markdown' && requestedExtension === '.html') {
-        logger.debug({ id, ownerId }, 'Converting Markdown to HTML');
-        const markdownText = data.toString('utf-8');
-        const htmlContent = md.render(markdownText);
-        data = Buffer.from(htmlContent, 'utf-8');
-        contentType = 'text/html';
-        logger.info({ id, ownerId }, 'Markdown converted to HTML successfully');
-      } else {
-        // Unsupported conversion
+      // Map extension to target MIME type
+      const targetType = converter.extensionToMimeType(requestedExtension);
+      
+      if (!targetType) {
         logger.warn({ 
           id, 
           ownerId, 
-          fragmentType: fragment.type, 
           requestedExtension 
-        }, 'Unsupported type conversion');
+        }, 'Unknown file extension');
         return res.status(415).json(createErrorResponse(
           415, 
-          `Conversion from ${fragment.type} to ${requestedExtension} is not supported`
+          `Unknown file extension: ${requestedExtension}`
         ));
+      }
+      
+      // If the requested type matches the original type, skip conversion
+      // This preserves the original image data without re-encoding
+      if (fragment.type === targetType) {
+        logger.debug({ id, ownerId, type: fragment.type }, 'Requested type matches original, skipping conversion');
+        contentType = targetType;
+      } else {
+        // Check if conversion is supported
+        if (!converter.canConvert(fragment.type, targetType)) {
+          logger.warn({ 
+            id, 
+            ownerId, 
+            fragmentType: fragment.type, 
+            targetType,
+            requestedExtension 
+          }, 'Unsupported type conversion');
+          return res.status(415).json(createErrorResponse(
+            415, 
+            `Conversion from ${fragment.type} to ${targetType} is not supported`
+          ));
+        }
+        
+        // Perform conversion only when types differ
+        try {
+          logger.debug({ id, ownerId, fromType: fragment.type, toType: targetType }, 'Converting fragment');
+          data = await converter.convert(data, fragment.type, targetType);
+          contentType = targetType;
+          logger.info({ id, ownerId, fromType: fragment.type, toType: targetType }, 'Fragment converted successfully');
+        } catch (err) {
+          logger.error({ err, id, ownerId, fromType: fragment.type, toType: targetType }, 'Conversion failed');
+          return res.status(415).json(createErrorResponse(
+            415, 
+            `Conversion failed: ${err.message}`
+          ));
+        }
       }
     }
 

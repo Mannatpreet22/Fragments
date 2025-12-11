@@ -49,25 +49,39 @@ function authorize(strategy) {
         });
       }
       
-      // Hash the user's email for privacy
+      // Hash the user's email/username for privacy
       try {
         // In test environment, skip hashing for easier testing
-        const hashedEmail = process.env.NODE_ENV === 'test' ? authenticatedUser : hashEmail(authenticatedUser);
+        let hashedUser;
+        if (process.env.NODE_ENV === 'test') {
+          hashedUser = authenticatedUser;
+        } else {
+          // Try to hash as email, if it fails (not a valid email), hash as regular string
+          try {
+            hashedUser = hashEmail(authenticatedUser);
+          } catch (emailError) {
+            // If it's not a valid email (e.g., username like "mannatpreet22"), hash it as a regular string
+            logger.debug({ user: authenticatedUser }, 'User is not an email, hashing as username');
+            const { hash } = require('../hash');
+            hashedUser = hash(authenticatedUser);
+          }
+        }
+        
         logger.debug({ 
           originalUser: authenticatedUser,
-          hashedEmail, 
+          hashedUser, 
           strategy 
-        }, 'User email hashed for privacy');
+        }, 'User hashed for privacy');
         
-        // Set the hashed email as the authenticated user
-        req.user = hashedEmail;
+        // Set the hashed user as the authenticated user
+        req.user = hashedUser;
         next();
       } catch (hashError) {
         logger.error({ 
           err: hashError, 
           user: authenticatedUser, 
           strategy 
-        }, 'Error hashing user email');
+        }, 'Error hashing user');
         
         return res.status(500).json({
           status: 'error',

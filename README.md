@@ -254,6 +254,82 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" localhost:8080/v1/fragments
 }
 ```
 
+#### Create Fragment
+- **POST** `/v1/fragments`
+- **Authentication**: Bearer token required
+- **Headers**: `Content-Type: <mime-type>`, `Authorization: Bearer <jwt-token>`
+- **Body**: Fragment data (text, JSON, YAML, or image)
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: text/plain" \
+  -d "Hello, world!" \
+  localhost:8080/v1/fragments
+```
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "fragment": {
+    "id": "97081cea-f2e3-45d7-9fb3-eb77d47e675e",
+    "ownerId": "hashed-user-id",
+    "type": "text/plain",
+    "size": 13,
+    "created": "2025-10-28T00:51:26.839Z",
+    "updated": "2025-10-28T00:51:26.839Z"
+  }
+}
+```
+
+#### Update Fragment
+- **PUT** `/v1/fragments/:id`
+- **Authentication**: Bearer token required
+- **Headers**: `Content-Type: <mime-type>`, `Authorization: Bearer <jwt-token>`
+- **Body**: Updated fragment data
+
+```bash
+curl -X PUT \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: text/html" \
+  -d "<p>Updated content</p>" \
+  localhost:8080/v1/fragments/{fragment-id}
+```
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "fragment": {
+    "id": "97081cea-f2e3-45d7-9fb3-eb77d47e675e",
+    "ownerId": "hashed-user-id",
+    "type": "text/html",
+    "size": 20,
+    "created": "2025-10-28T00:51:26.839Z",
+    "updated": "2025-10-28T00:52:10.123Z"
+  }
+}
+```
+
+#### Get Fragment by ID
+- **GET** `/v1/fragments/:id` or **GET** `/v1/fragments/:id.ext`
+- **Authentication**: Bearer token required
+- **Returns**: Fragment data (with optional type conversion via `.ext` extension)
+
+```bash
+# Get fragment in original format
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" localhost:8080/v1/fragments/{fragment-id}
+
+# Get fragment converted to HTML (if original is markdown)
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" localhost:8080/v1/fragments/{fragment-id}.html
+
+# Get image converted to PNG (if original is JPEG)
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" localhost:8080/v1/fragments/{fragment-id}.png
+```
+
+**Response:** Binary data with appropriate `Content-Type` header
+
 #### Get Fragment Metadata by ID
 - **GET** `/v1/fragments/:id/info`
 - **Authentication**: Bearer token required
@@ -269,14 +345,79 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" localhost:8080/v1/fragments/{frag
   "status": "ok",
   "fragment": {
     "id": "97081cea-f2e3-45d7-9fb3-eb77d47e675e",
-    "ownerId": "user1@email.com",
-    "type": "鲜/plain",
+    "ownerId": "hashed-user-id",
+    "type": "text/plain",
     "size": 11,
     "created": "2025-10-28T00:51:26.839Z",
     "updated": "2025-10-28T00:51:26.839Z"
   }
 }
 ```
+
+#### Delete Fragment
+- **DELETE** `/v1/fragments/:id`
+- **Authentication**: Bearer token required
+
+```bash
+curl -X DELETE \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  localhost:8080/v1/fragments/{fragment-id}
+```
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "message": "Fragment deleted successfully"
+}
+```
+
+## Supported Fragment Types
+
+### Text Types
+- `text/plain` - Plain text
+- `text/html` - HTML content
+- `text/css` - CSS stylesheets
+- `text/javascript` - JavaScript code
+- `text/markdown` - Markdown content
+- `text/xml` - XML documents
+- `text/csv` - CSV data
+
+### Data Types
+- `application/json` - JSON data
+- `application/xml` - XML documents
+- `application/yaml` - YAML data
+
+### Image Types
+- `image/png` - PNG images
+- `image/jpeg` - JPEG images
+- `image/webp` - WebP images
+- `image/avif` - AVIF images
+- `image/gif` - GIF images
+
+## Type Conversions
+
+The API supports on-the-fly type conversions when retrieving fragments. Conversions are performed at request time and do not modify the stored fragment.
+
+### Text-to-Text Conversions
+- **Markdown → HTML**: `GET /v1/fragments/:id.html` (from markdown)
+- **JSON → XML**: `GET /v1/fragments/:id.xml` (from JSON)
+- **XML → JSON**: `GET /v1/fragments/:id.json` (from XML)
+- **CSV → JSON**: `GET /v1/fragments/:id.json` (from CSV)
+- **Text → HTML**: `GET /v1/fragments/:id.html` (from plain text)
+- **JSON ↔ YAML**: Convert between JSON and YAML formats
+
+### Image-to-Image Conversions
+All image formats can be converted to any other supported image format:
+- **PNG ↔ JPEG ↔ WebP ↔ AVIF ↔ GIF**: All combinations supported
+- Example: `GET /v1/fragments/:id.png` (converts JPEG to PNG)
+- Example: `GET /v1/fragments/:id.webp` (converts PNG to WebP)
+
+### Conversion Rules
+- Only conversions within the same category are supported (text-to-text, image-to-image)
+- Cross-type conversions (e.g., text-to-image) are not supported
+- The original fragment format is always preserved in storage
+- Conversions happen on-the-fly during retrieval
 
 ## Authentication
 

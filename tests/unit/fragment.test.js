@@ -53,36 +53,53 @@ describe('Fragment', () => {
   });
 
   describe('isSupportedType', () => {
-    test('returns true for supported types', () => {
+    test('returns true for supported text types', () => {
       expect(Fragment.isSupportedType('text/plain')).toBe(true);
       expect(Fragment.isSupportedType('text/html')).toBe(true);
       expect(Fragment.isSupportedType('text/css')).toBe(true);
       expect(Fragment.isSupportedType('text/javascript')).toBe(true);
-      expect(Fragment.isSupportedType('application/json')).toBe(true);
       expect(Fragment.isSupportedType('text/markdown')).toBe(true);
-      expect(Fragment.isSupportedType('text/xml')).toBe(true);
-      expect(Fragment.isSupportedType('application/xml')).toBe(true);
+    });
+
+    test('returns true for supported data types', () => {
+      expect(Fragment.isSupportedType('application/json')).toBe(true);
+    });
+
+    test('returns true for supported image types', () => {
+      expect(Fragment.isSupportedType('image/png')).toBe(true);
+      expect(Fragment.isSupportedType('image/jpeg')).toBe(true);
+      expect(Fragment.isSupportedType('image/webp')).toBe(true);
+      expect(Fragment.isSupportedType('image/avif')).toBe(true);
+      expect(Fragment.isSupportedType('image/gif')).toBe(true);
     });
 
     test('returns false for unsupported types', () => {
-      expect(Fragment.isSupportedType('image/jpeg')).toBe(false);
       expect(Fragment.isSupportedType('video/mp4')).toBe(false);
       expect(Fragment.isSupportedType('application/pdf')).toBe(false);
-      expect(Fragment.isSupportedType('text/csv')).toBe(false);
+      expect(Fragment.isSupportedType('audio/mpeg')).toBe(false);
       expect(Fragment.isSupportedType('')).toBe(false);
     });
   });
 
   describe('getExtension', () => {
-    test('returns correct extensions for supported types', () => {
+    test('returns correct extensions for text types', () => {
       expect(Fragment.getExtension('text/plain')).toBe('.txt');
       expect(Fragment.getExtension('text/html')).toBe('.html');
       expect(Fragment.getExtension('text/css')).toBe('.css');
       expect(Fragment.getExtension('text/javascript')).toBe('.js');
-      expect(Fragment.getExtension('application/json')).toBe('.json');
       expect(Fragment.getExtension('text/markdown')).toBe('.md');
-      expect(Fragment.getExtension('text/xml')).toBe('.xml');
-      expect(Fragment.getExtension('application/xml')).toBe('.xml');
+    });
+
+    test('returns correct extensions for data types', () => {
+      expect(Fragment.getExtension('application/json')).toBe('.json');
+    });
+
+    test('returns correct extensions for image types', () => {
+      expect(Fragment.getExtension('image/png')).toBe('.png');
+      expect(Fragment.getExtension('image/jpeg')).toBe('.jpg');
+      expect(Fragment.getExtension('image/webp')).toBe('.webp');
+      expect(Fragment.getExtension('image/avif')).toBe('.avif');
+      expect(Fragment.getExtension('image/gif')).toBe('.gif');
     });
 
     test('returns .txt for unknown types', () => {
@@ -323,6 +340,52 @@ describe('Fragment', () => {
       const result = await fragment.getData();
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('update', () => {
+    test('updates fragment data and metadata', async () => {
+      const fragment = new Fragment({
+        ownerId: 'user1',
+        type: 'text/plain',
+        size: 10,
+        data: Buffer.from('old data'),
+      });
+
+      const newData = Buffer.from('new data');
+      data.writeFragment.mockResolvedValue({ id: fragment.id, ownerId: 'user1', type: 'text/html', size: 8 });
+      data.writeFragmentData.mockResolvedValue({ id: fragment.id, data: newData });
+
+      const result = await fragment.update(newData, 'text/html');
+
+      expect(result).toBe(fragment);
+      expect(fragment.data).toEqual(newData);
+      expect(fragment.type).toBe('text/html');
+      expect(fragment.size).toBe(8);
+      // Updated should be >= created (might be same millisecond, so check >= instead of !=)
+      expect(new Date(fragment.updated).getTime()).toBeGreaterThanOrEqual(new Date(fragment.created).getTime());
+      expect(data.writeFragment).toHaveBeenCalled();
+      expect(data.writeFragmentData).toHaveBeenCalledWith('user1', fragment.id, newData);
+    });
+
+    test('throws error for non-Buffer data', async () => {
+      const fragment = new Fragment({
+        ownerId: 'user1',
+        type: 'text/plain',
+        size: 10,
+      });
+
+      await expect(fragment.update('not a buffer', 'text/plain')).rejects.toThrow('Data must be a Buffer');
+    });
+
+    test('throws error for empty data', async () => {
+      const fragment = new Fragment({
+        ownerId: 'user1',
+        type: 'text/plain',
+        size: 10,
+      });
+
+      await expect(fragment.update(Buffer.from(''), 'text/plain')).rejects.toThrow('Data cannot be empty');
     });
   });
 

@@ -7,7 +7,7 @@
     "test:watch": "jest -c jest.config.js --runInBand --watch --",
     "test": "jest -c jest.config.js --runInBand --",
     "coverage": "jest -c jest.config.js --runInBand --coverage",
-    "test:integration": "hurl --test --glob \"tests/integration/**/*.hurl\"",
+    "test:integration": "hurl --test --file-root tests --glob \"tests/integration/**/*.hurl\"",
     "lint": "eslint \"./src/**/*.js\" \"tests/**/*.js\"",
     "start": "node src/index.js",
     "dev": "node --env-file=debug.env --watch ./src/index.js",
@@ -53,6 +53,10 @@
     "pino": "^9.9.4",
     "pino-http": "^10.5.0",
     "pino-pretty": "^13.1.1",
-    "stoppable": "^1.1.0"
+    "sharp": "^0.33.0",
+    "stoppable": "^1.1.0",
+    "xml2js": "^0.6.2",
+    "csv-parse": "^5.5.0",
+    "js-yaml": "^4.1.0"
   }
 }

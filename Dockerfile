@@ -13,6 +13,14 @@ LABEL description="Fragments node.js microservice (build stage)"
 ENV NPM_CONFIG_LOGLEVEL=warn
 ENV NPM_CONFIG_COLOR=false
 
+# Install build dependencies for Sharp (native module)
+# Sharp uses prebuilt binaries, but we may need some system libraries
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    vips-dev
+
 # Use /app as our working directory
 WORKDIR /app
 
@@ -45,6 +53,12 @@ ENV NODE_ENV=production
 # Reduce npm spam when running within Docker
 ENV NPM_CONFIG_LOGLEVEL=warn
 ENV NPM_CONFIG_COLOR=false
+
+# Install runtime dependencies for Sharp (libvips)
+# Sharp requires libvips for image processing
+RUN apk add --no-cache \
+    vips \
+    && rm -rf /var/cache/apk/*
 
 # Use /app as our working directory
 WORKDIR /app
